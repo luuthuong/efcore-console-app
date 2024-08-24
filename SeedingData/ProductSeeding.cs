@@ -5,7 +5,7 @@ namespace practice_app.SeedingData;
 
 public class ProductSeeding: ISeedingData
 {
-    public string Key => $"{new DateTimeOffset(DateTime.Now).ToUnixTimeSeconds()}_product_table";
+    public string Key => $"1_product_table";
     
     public Task DoAsync(AppDbContext context)
     {
@@ -19,7 +19,7 @@ public class ProductSeeding: ISeedingData
             Product.Create("MSI", "MSI: Gaming excellence, powerful hardware, and sleek design for enthusiasts."),
             Product.Create("Monitor","Crystal-clear display, vibrant visuals – the epitome of immersive viewing."),
         };
-        context.Product.AddRangeAsync(products);
+        context.Products.AddRangeAsync(products);
         return context.SaveChangesAsync();
     }
 }
