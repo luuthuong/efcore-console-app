@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using practice_app.Common;
+using Spectre.Console;
 
 namespace practice_app.Entities;
 
@@ -30,10 +31,15 @@ public static class ProductExtensions
 {
     public static void WriteConsole(this IEnumerable<Product> products)
     {
-        TableConsole.Print(
-            ["Id", "Name", "Description", "CreatedDate", "UpdatedDate"],
-            products,
-            (p) => [p.Id.ToString(), p.Name, p.Description, p.CreatedDate.ToString(), p.UpdatedDate?.ToString() ?? "NULL"]
+        TableConsole.Write(
+            "Products",
+            new TableData<Product>(
+                Columns: ["Id", "Name", "Description", "CreatedDate", "UpdatedDate"],
+                Items: products,
+                GetValues: (p) => [p.Id.ToString(), p.Name, p.Description, p.CreatedDate.ToString(), p.UpdatedDate?.ToString() ?? "NULL"]
+            )
         );
     }
+
+    public static void WriteConsole(this Product product) => WriteConsole([product]);
 }

@@ -1,6 +1,4 @@
-using System;
 using practice_app.Common;
-using Spectre.Console;
 
 namespace practice_app.Entities;
 
@@ -16,10 +14,14 @@ public static class CustomerExtensions
 {
     public static void WriteConsole(this IEnumerable<Customer> customers)
     {
-        TableConsole.Print(
-            ["Id", "FirstName", "LastName", "Address"],
-            customers,
-            (c) => [c.Id.ToString(), c.FirstName, c.LastName, c.Address]
+        TableConsole.Write(
+            "Customers",
+            new TableData<Customer>(
+                Columns: ["Id", "FirstName", "LastName", "Address"],
+                Items: customers,
+                GetValues: (c) => [c.Id.ToString(), c.FirstName, c.LastName, c.Address]
+            )
         );
     }
+    public static void WriteConsole(this Customer customer) => WriteConsole([customer]);
 }

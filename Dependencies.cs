@@ -1,44 +1,51 @@
-using Castle.DynamicProxy;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using practice_app.Common;
-using practice_app.DbContexts;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace practice_app;
 
 public static class Dependencies
 {
-    private static IServiceCollection _services = default!;
+    private static IServiceCollection services = default!;
 
-    public static IServiceProvider ServiceProvider => _services?.BuildServiceProvider() ?? throw new InvalidOperationException("Services not initialized");
+    public static IServiceProvider ServiceProvider => services?.BuildServiceProvider() ?? throw new InvalidOperationException("Services not initialized");
 
     public static IServiceProvider Load()
     {
         Initialize();
+        services.AddSingleton(AppSettingSetup.Load());
+        ConfigureSerilog();
         ConfigureDbContext();
-        _services.AddSingleton(AppSettingSetup.Load());
-        return _services!.BuildServiceProvider();
+        return services!.BuildServiceProvider();
     }
 
     private static void Initialize()
     {
-        if (_services is null)
-            _services = new ServiceCollection();
-        _services.Clear();
+        if (services is null)
+            services = new ServiceCollection();
+        services.Clear();
     }
 
     private static void ConfigureDbContext()
     {
-        _services.AddDbContext<AppDbContext>(
+        services.AddDbContext<AppDbContext>(
            options =>
            {
-               options.UseInMemoryDatabase("MyDb");
                var settings = AppSettingSetup.Load();
-               if (settings.UseLazyLoadingProxies)
+               options.ConfigureEFProvider();
+               options.UseLoggerFactory(new LoggerFactory().AddSerilog());
+               if (settings.Database.UseLazyLoadingProxies)
                {
-                   Console.WriteLine("LazyLoading proxy is enabled");
+                   TextConsole.WriteLine("LazyLoading proxy is enabled");
                    options.UseLazyLoadingProxies();
                }
            });
+    }
+
+    private static void ConfigureSerilog()
+    {
+        var logger = new LoggerConfiguration();
+        logger.WriteTo.Console();
+        Log.Logger = logger.CreateLogger();
+        services.AddSingleton(Log.Logger);
     }
 }

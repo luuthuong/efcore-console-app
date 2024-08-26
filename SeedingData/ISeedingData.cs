@@ -1,6 +1,4 @@
-﻿using practice_app.DbContexts;
-
-namespace practice_app.SeedingData;
+﻿namespace practice_app.SeedingData;
 
 public interface ISeedingData
 {

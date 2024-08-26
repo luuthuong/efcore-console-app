@@ -9,10 +9,15 @@ public enum DatabaseTypeProvider
     InMemory = 2
 }
 
+public record DatabaseConfig(
+    string ConnectionString, 
+    DatabaseTypeProvider Provider, 
+    bool UseLazyLoadingProxies
+);
+
 public record AppSettings
 {
-    public DatabaseTypeProvider DatabaseProvider { get; set; }
-    public bool UseLazyLoadingProxies { get; set; }
+    public DatabaseConfig Database { get; set; }
 }
 
 public class AppSettingSetup
