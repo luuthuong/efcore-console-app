@@ -20,6 +20,7 @@ public class Product : BaseEntity
     {
         return new Product()
         {
+            Id = Guid.NewGuid(),
             Name = name,
             Description = description,
             CreatedDate = DateTime.Now

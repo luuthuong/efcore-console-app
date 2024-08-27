@@ -9,7 +9,12 @@ public static class DbContextExtension
         {
             case DatabaseTypeProvider.SqlServer:
                 TextConsole.WriteLine("Using Sql Server");
-                builder.UseSqlServer(appsettings.Database.ConnectionString);
+                builder.UseSqlServer(
+                    appsettings.Database.ConnectionString,
+                    sqlOptions =>{
+                        sqlOptions.CommandTimeout(3_000);
+                    }
+                );
                 break;
             case DatabaseTypeProvider.InMemory:
                 TextConsole.WriteLine("Using InMemory Database");

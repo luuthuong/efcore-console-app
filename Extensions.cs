@@ -1,6 +1,19 @@
-using System;
-
 namespace practice_app;
+
+public static partial class Program
+{
+    static AppDbContext DBContext;
+    static Program()
+    {
+        var serviceProvider = Dependencies.Load();
+        DBContext = serviceProvider.InitDbContextAsync().Result;
+        AnsiConsole.Clear();
+        AnsiConsole.Write(
+            new FigletText("EFCore Console").Centered().Color(Color.Blue)
+        );
+    }
+}
+
 
 public static class Extensions
 {

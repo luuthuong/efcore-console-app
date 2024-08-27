@@ -1,25 +1,34 @@
 ﻿using Serilog;
+using EFCore.BulkExtensions;
 
 namespace practice_app;
 
-public static class Program
+public static partial class Program
 {
-    private static AppDbContext DbContext;
-    static Program()
-    {
-        var serviceProvider = Dependencies.Load();
-        DbContext = serviceProvider.InitDbContextAsync().Result;
-        AnsiConsole.Clear();
-        AnsiConsole.Write(
-            new FigletText("EFCore Console").Centered().Color(Color.Blue)
-        );
-    }
 
     public static async Task Main(string[] args)
     {
-        var products = await DbContext.Products.Where(
-            p => p.Description.Contains("performance")
-        ).ToListAsync();
-        products.WriteConsole();
+        await TextConsole.WrapPrintTimeExecution(
+            [
+                ("[BulkExtensions] Inserting 1.000.000 products", InsertMillionRecordsUsingBulkExtensions),
+                ("[Default EF Core] Inserting 1.000.000 products", InsertMillionRecorsUsingDefaultEfCore)
+            ]
+        );
+    }
+
+    public static Task InsertMillionRecordsUsingBulkExtensions()
+    {
+        var products = Enumerable.Range(1, 1_000_000).Select(x => Product.Create($"Product {x}", $"Product {x} description")).ToList();
+        return DBContext.BulkInsertAsync(products, config =>
+        {
+            config.BatchSize = 1000;
+        });
+    }
+
+    public static async Task InsertMillionRecorsUsingDefaultEfCore()
+    {
+        var products = Enumerable.Range(1, 1_000_000).Select(x => Product.Create($"Product {x}", $"Product {x} description")).ToList();
+        await DBContext.Products.AddRangeAsync(products);
+        await DBContext.SaveChangesAsync();
     }
 }
